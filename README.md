@@ -1,4 +1,4 @@
-# PS4 → PS5 Migration Experimentation Platform
+#  Analyzing PlayStation User Migration from an Experimentation Standpoint: Data ingestion → User's simulation → Experiments & Controlled-Experiment using Pre-Experiment Data → Dashboards
 
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ps4-to-ps5-migration-experiment-wxjgvx35ksxosdztq6bjgf.streamlit.app/)
 
