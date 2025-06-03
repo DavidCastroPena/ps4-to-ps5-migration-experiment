@@ -1,6 +1,6 @@
 #  Analyzing PlayStation User Migration from an Experimentation Standpoint: from Data ingestion → User's simulation → Experiments to Dashboards
 
-## Check demo here 
+## Check demo on Streamlit:
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ps4-to-ps5-migration-experiment-wxjgvx35ksxosdztq6bjgf.streamlit.app/)
 
 ---
