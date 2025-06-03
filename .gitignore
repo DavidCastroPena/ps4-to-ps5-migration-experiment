@@ -1,0 +1,11 @@
+# Byte‐compiled / Python cache
+__pycache__/
+
+# Generated outputs
+out/
+
+# VS Code settings
+.vscode/
+
+# Python virtual environment
+.venv/
