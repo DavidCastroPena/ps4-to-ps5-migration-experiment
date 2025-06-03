@@ -82,159 +82,149 @@ All underlying data used in this simulation and dashboard are **publicly availab
 
 ---
 
-## Quarterly Simulation
+## Interpreting the Dashboard & CUPED Analysis
+
+Below is a guide on how to read the key charts and metrics in our Streamlit dashboard, and specifically how to interpret the CUPED‐adjusted results in the Daily view. You can include this section in your `README.md` under a header like “Interpreting the Dashboard.”
+
+---
 
 ### Quarterly View Interpretation
 
 When you select **“Quarterly”** in the sidebar, the dashboard displays four main panels:
 
 1. **Simulated MAU vs Sony Reported MAU**  
-   - **Blue Line**: This plots our simulated **MAU** (monthly active users) for each quarter, calculated as the sum of the active PS4 pool + active PS5 pool, plus a small Gaussian noise term.  
-   - **Red Dots**: These are Sony’s publicly reported MAU figures (FY23 Q1 → FY24 Q4). We filter out missing values so that only quarters where Sony released data show a red dot at the exact MAU value (e.g., 108 M in FY23 Q1, 107 M in FY23 Q2, etc.).  
+   - **Blue Line**: Plots our simulated MAU (sum of active PS4 + active PS5, plus small Gaussian noise) for each quarter.  
+   - **Red Dots**: Sony’s publicly reported MAU figures (FY23 Q1 → FY24 Q4). Only quarters with actual data show a red dot at the true MAU value (e.g., 108 M in FY23 Q1, 107 M in FY23 Q2, etc.).  
    - **How to Read It**:  
-     - If the blue line closely tracks the red dots, it means our simulation accurately reproduces real‐world MAU trends.  
-     - Vertical gaps between the blue line and red dots indicate residual errors (which are shown explicitly in the “Error vs Actual MAU” panel).  
+     - If the blue line closely tracks the red dots, our simulation matches real‐world MAU trends.  
+     - Vertical gaps between blue and red indicate residual errors (shown in the “Error vs Actual MAU” panel).  
 
 2. **Active PS4 Pool (per quarter)**  
-   - Plots just the simulated PS4 user base (in millions) over time.  
-   - **Interpretation**: You’ll see a steady decline as PS4 owners either migrate to PS5 or churn out of the MAU total. This panel helps confirm that our assumed quarterly migration rate (5% of PS4 pool) is driving a realistic drop in PS4 activity.
+   - Shows the simulated PS4 user base (in millions) over time.  
+   - **Interpretation**: A gradual decline represents PS4 owners migrating to PS5 (or churning out).
 
 3. **Active PS5 Pool (per quarter)**  
-   - Plots the simulated PS5 user base (in millions) over the same quarters.  
-   - **Interpretation**: This should climb from zero in FY20 Q4 up to around ~56 M by FY24 Q2, roughly matching Sony’s “sell-through” milestones (e.g., 10 M by July 2021, 30 M by December 2022, 56 M by April 2024). If your blue line roughly overlaps those published anchor points, the simulation is aggregating supply + migration correctly.
+   - Shows the simulated PS5 user base (in millions).  
+   - **Interpretation**: A rising curve, from zero in FY20 Q4 to around 56 M by FY24 Q2, roughly matching Sony’s published milestones (10 M by July 2021, 30 M by Dec 2022, etc.).
 
 4. **Error vs Actual MAU**  
-   - Plots the residual (`Simulated_MAU − Actual_MAU`) for each quarter where `Actual_MAU` is available.  
+   - Plots `(Simulated_MAU − Actual_MAU)` for quarters where `Actual_MAU` exists.  
    - **Interpretation**:  
-     - A residual near zero in FY23–FY24 indicates that, after adding noise, our simulation is centered around the true MAU.  
-     - Any large positive or negative spike means our assumed migration or retention parameters might need tuning.  
+     - Residual near zero means our assumptions (5% migration, 90% retention, etc.) align well with reality.  
+     - Large spikes (positive or negative) suggest tuning parameters may be needed.
 
-> **Quick takeaway**: The quarterly panels let you validate that the high‐level supply‐and‐migration model reproduces real MAU data, and also provides transparency into PS4/PS5 pool dynamics over time.
+> **Quick takeaway:** The quarterly panels validate our high‐level model and show how well it aligns with Sony’s real MAU data.
 
 ---
 
 ### Daily A/B Experiment Interpretation
 
-When you switch to **“Daily”**, the dashboard automatically generates (or loads) a day‐by‐day CSV covering 2020-11-01 → 2025-06-30 and splits the PS4 base 50/50 into **Control** and **Treatment**. Key parts:
+When you switch to **“Daily”**, the dashboard auto‐generates (or loads) a CSV covering 2020-11-01 → 2025-06-30 and splits the PS4 base 50/50 into **Control** and **Treatment**. Key parts:
 
 1. **Raw Cumulative Migrations (Control vs Treatment)**  
-   - **Blue Line (Control)**: Cumulative sum of daily migrations from PS4_Control → PS5_Control, using a baseline daily migration probability (5% per quarter ÷ ~91 days).  
-   - **Orange Line (Treatment)**: Cumulative sum for the Treatment group, which uses the same baseline probability until 2023-01-01, then switches to a 50% higher daily rate (simulating a marketing campaign).  
-   - **Reading the chart**:  
-     - Up until 2023-01-01, the two lines track almost identically (both groups have identical migration probabilities).  
-     - After 2023-01-01, the orange Treatment line curves upward more steeply, indicating the treatment effect.  
-     - The vertical distance between the two lines at any date is the raw “lift” (absolute difference in migrated users) due to the campaign.  
-     - The final gap at 2025-06-30 shows the total additional migrated users in Treatment vs Control.
+   - **Blue Line (Control):** Cumulative sum of daily migrations from `PS4_Control → PS5_Control`, using a baseline daily migration probability of (5 % per quarter ÷ 91 days).  
+   - **Orange Line (Treatment):** Same until 2023-01-01; afterwards, Treatment’s daily probability is 50 % higher to simulate a campaign.  
+   - **How to Read It:**  
+     - Before 2023-01-01, both lines overlap (same migration rate).  
+     - After 2023-01-01, the orange line rises faster, showing the treatment effect.  
+     - The vertical gap at any date is the raw “lift” (absolute difference in migrated users).  
 
 2. **Raw Conversion & Lift Metrics**  
-   - Under the chart, you see three metrics (in a row):  
-     1. **Control Conversion (%)**:  
-        \[
-          \frac{\text{Total Migrated\_Control (M)}}{\text{Initial PS4_Control (56.75 M)}} × 100
-        \]  
-     2. **Treatment Conversion (%)**:  
-        \[
-          \frac{\text{Total Migrated\_Treatment (M)}}{\text{Initial PS4_Treatment (56.75 M)}} × 100
-        \]  
-     3. **Lift (Raw %)**:  
-        \[
-          \frac{\text{Treatment Conversion – Control Conversion}}{\text{Control Conversion}} × 100
-        \]  
-   - **Interpretation**:  
-     - If Control Conv is, say, 63%, and Treatment Conv is 71%, then raw Lift ≈ 12.7%. That means the campaign increased the fraction of PS4 users migrating to PS5 by about 12.7% relative to the baseline.  
+   Under the chart, three metrics display:
+   1. **Control Conversion (%):**  
+      ```
+      (Total Migrated_Control in millions) ÷ (Initial PS4_Control ← 56.75 M) × 100
+      ```
+   2. **Treatment Conversion (%):**  
+      ```
+      (Total Migrated_Treatment in millions) ÷ (Initial PS4_Treatment ← 56.75 M) × 100
+      ```
+   3. **Lift (Raw %):**  
+      ```
+      ((Treatment Conversion – Control Conversion) ÷ Control Conversion) × 100
+      ```
+   - **Interpretation:**  
+     - If Control Conversion = 63 % and Treatment Conversion = 71 %, then Raw Lift ≈ (71 – 63) ÷ 63 × 100 ≈ 12.7 %. That means the campaign boosted migration by ~12.7 % relative to baseline.  
 
-> **Quick takeaway**: The raw daily A/B chart shows exactly when and how much the Treatment group outperformed the Control, but it still contains day‐to‐day noise from random migration events and fluctuating PS4 pools.
+> **Quick takeaway:** The raw daily A/B chart shows exactly when and how much Treatment outperforms Control, but it still contains day-to-day noise.
 
 ---
 
 ### CUPED Variance-Reduction Interpretation
 
-To reduce day-to-day volatility and better isolate the true treatment effect, we apply **CUPED** using **“yesterday’s PS4 pool”** as the covariate:
+To reduce noise and isolate the true treatment effect, we apply **CUPED** using **“yesterday’s PS4 pool”** as the covariate:
 
 1. **Covariate Definition**  
-   - For each group (Control, Treatment), we define  
-     \[
-       X_{\text{group}}(t) \;=\; \text{PS4\_group}(t-1).
-     \]  
-   - Rationale: If you had more PS4 owners yesterday, you’re expected to see more migrations today. This strong correlation makes “PS4 pool at \(t-1\)” a good predictor of “migrated at \(t\).”
+   - For each group (Control/Treatment), define:
+     ```
+     X_group(t) = PS4_group(t − 1)
+     ```
+   - Rationale: A larger PS4 pool yesterday generally leads to more migrations today. This correlation makes “PS4 pool at t − 1” a strong predictor of “migrated at t.”
 
 2. **Pre-Campaign Period**  
-   - All days **before** 2023-01-01 form the pre-campaign window. We calculate  
-     \[
-       \bar{X}_{\text{group, pre}} \;=\; \text{mean of }X_{\text{group}}(t)\;\text{for }t<2023-01-01.
-     \]
+   - Days < 2023-01-01 form the pre-campaign window. Compute:
+     ```
+     X_bar_pre_group = mean of X_group(t) for t < 2023-01-01
+     ```
 
 3. **Post-Campaign Period**  
-   - All days **on or after** 2023-01-01 form the post-window. For each group:  
-     - Let \(Y_{\text{post}}(t) = \text{Migrated\_group}(t)\).  
-     - Let \(X_{\text{post}}(t) = X_{\text{group}}(t)\).  
-     - Compute  
-       \[
-         \theta_{\text{group}} 
-         = \frac{\mathrm{Cov}\bigl(X_{\text{post}},\,Y_{\text{post}}\bigr)}{\mathrm{Var}\bigl(X_{\text{post}}\bigr)}.
-       \]  
-     - Roughly speaking, \(\theta\) captures how many additional migrations you get for each extra million PS4 owners yesterday.
+   - Days ≥ 2023-01-01 form the post-campaign window. For each group:
+     - Let Y_post_group(t) = Migrated_group(t).
+     - Let X_post_group(t) = X_group(t).
+     - Compute
+       ```
+       theta_group 
+         = Covariance( X_post_group, Y_post_group ) ÷ Variance( X_post_group ).
+       ```
+     - Intuition: θ quantifies “additional migrations per extra million PS4 owners yesterday.”
 
-4. **Construct CUPED-Adjusted Migrations**  
-   - For each post-campaign day \(t:\)  
-     \[
-       \text{Migrated\_CUPED\_group}(t) 
-         = Y_{\text{post}}(t) 
-           \;-\;\theta_{\text{group}}\,\bigl(X_{\text{group}}(t) \;-\;\bar{X}_{\text{group, pre}}\bigr).
-     \]  
-   - Intuitively, we subtract out the portion of today’s migration that can be “explained” by yesterday’s PS4 pool deviating from its pre-campaign mean.
+4. **Compute CUPED-Adjusted Migrations**  
+   - For each post-campaign day t:
+     ```
+     Migrated_CUPED_group(t)
+       = Y_post_group(t)
+         − theta_group × ( X_group(t) − X_bar_pre_group ).
+     ```
+   - We subtract the component of “today’s migrations” that’s explained by “yesterday’s PS4 pool deviation from its pre-campaign mean.”
 
-5. **Cumulative CUPED Curves**  
-   - We then plot the cumulative sum of these “Migrated_CUPED” values for Control vs Treatment:  
-     \[
-       \sum_{d=1}^t \text{Migrated\_CUPED\_group}(d).
-     \]  
-   - **Chart Behavior**:  
-     - Compared to the raw curves, the CUPED lines are noticeably **smoother**—they eliminate day-to-day noise.  
-     - The vertical gap between the two CUPED curves (Control vs Treatment) is cleaner, showing the “pure” campaign effect.  
+5. **Plot Cumulative CUPED Curves**  
+   - Take the cumulative sum of `Migrated_CUPED_group(t)` for each group:
+     ```
+     Cumul_CUPED_group(t) = sum_{d=first day to t} Migrated_CUPED_group(d)
+     ```
+   - **Chart Behavior:**  
+     - Compared to raw curves, CUPED lines are smoother.  
+     - The vertical gap between the two CUPED curves more clearly shows the pure treatment effect (with less noise).
 
-<details>
-<summary>Illustrative CUPED Chart (Example)</summary>
-
-![CUPED Adjusted Cumulative Migrations](assets/daily_cuped.png)
-
-</details>
 
 6. **CUPED Conversion & Lift Metrics**  
-   - Under the CUPED chart, you’ll see another row of three metrics:  
-     1. **Control Conversion (CUPED %)**  
-     2. **Treatment Conversion (CUPED %)**  
-     3. **Lift (CUPED %)**  
-   - These use the final cumulative CUPED values (for each group) divided by the initial PS4 pool (56.75 M).  
-   - **Interpretation**:  
-     - Because CUPED removes fluctuations caused by changes in yesterday’s PS4 pool, the resulting lift % is often more precise (and sometimes slightly higher or lower) than the raw lift.  
-     - In practice, this helps data scientists reach statistical significance faster by reducing variance.
+   Under the CUPED chart, a second row of three metrics shows:
+   1. **Control Conversion (CUPED %):**  
+      ```
+      (Final Cumul_CUPED_Control in millions) ÷ (Initial PS4_Control ← 56.75 M) × 100
+      ```
+   2. **Treatment Conversion (CUPED %):**  
+      ```
+      (Final Cumul_CUPED_Treatment in millions) ÷ (Initial PS4_Treatment ← 56.75 M) × 100
+      ```
+   3. **Lift (CUPED %):**  
+      ```
+      ((Treatment_CUPED % – Control_CUPED %) ÷ Control_CUPED %) × 100
+      ```
+   - **Interpretation:**  
+     - Because CUPED removes variability explained by yesterday’s PS4 pool, the resulting lift is more stable and often more accurate.  
+
+> **Key takeaway:** CUPED helps you “subtract out” predictable day-to-day fluctuations, so you see a clearer, more statistically precise treatment effect.
 
 ---
 
 ## Putting It All Together
 
-1. **Quarterly View** validates that our high‐level supply + retention + migration model reproduces known MAU milestones. If the blue vs red lines track well, you know the simulation parameters (e.g. 5% quarterly migration, 90% retention) are reasonable.
+1. **Quarterly View** validates that our supply + migration model reproduces known MAU milestones.  
+2. **Daily Raw A/B View** shows exactly when the Treatment group pulls away, but is noisy.  
+3. **CUPED View** yields smoother curves and a clearer lift percentage by controlling for yesterday’s PS4 pool.
 
-2. **Daily Raw A/B View** shows exactly when the Treatment campaign drives extra PS5 migrations relative to Control—but it can be noisy, since each day’s migrations depend on a random draw from a large pool.
-
-3. **CUPED View** filters out most of that noise by controlling for yesterday’s PS4 pool size. The result is a smoother cumulative curve where the true treatment effect (orange vs blue gap) is easier to interpret and quantify. The “Lift (CUPED %)” metric at the bottom encapsulates the net effect of the campaign after variance reduction.
-
-> **Key takeaway for hiring managers**:  
-> This dashboard demonstrates every step of a real‐world experiment pipeline:  
-> - **Data sourcing & simulation** (quarterly sell-in, MAU anchors).  
-> - **Experiment design** (50/50 random split, treatment uplift on 2023-01-01).  
-> - **Variance reduction (CUPED)** for clearer insights.  
-> - **Interactive reporting** (Streamlit).  
->
-> You can point at the CUPED view to show that you understand how to choose a strong covariate (yesterday’s PS4 pool), compute \(\theta\), and present a variance-reduced treatment effect in a concise chart.  
->
-> When a product or marketing partner asks, “What is the true incremental lift of our campaign?”—this is the exact workflow you would follow
-
-
-
-
-
-
-
+> **For hiring managers:** This dashboard demonstrates a full experimentation workflow—
+> sourcing data → simulating cohorts → designing an A/B test → applying CUPED variance reduction → delivering an interactive report.  
+> You can point to the CUPED logic to show that you understand how to choose a strong covariate (PS4 pool) and compute θ to isolate the incremental campaign effect.
 
